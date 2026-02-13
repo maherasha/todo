@@ -1,1 +1,5 @@
-services: { }
+services:
+  todo-app:
+    build: .
+    ports:
+      - "8080:8080"
