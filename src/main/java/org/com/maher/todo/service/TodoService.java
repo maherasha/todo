@@ -60,6 +60,18 @@ public class TodoService {
         return mapper.toResponse(saved);
     }
 
+    public TodoResponse markTodoNotDone(UUID id) {
+        TodoItem item = repository.findById(id)
+                .orElseThrow(() -> new TodoNotFoundException(id));
+        if (item.getStatus() == TodoStatus.PAST_DUE) {
+            throw new PastDueModificationException(id);
+        }
+        item.setStatus(TodoStatus.NOT_DONE);
+        item.setDoneDatetime(null);
+        TodoItem saved = repository.save(item);
+        return mapper.toResponse(saved);
+    }
+
     public List<TodoResponse> getTodos(String status) {
         List<TodoItem> items;
         if ("all".equalsIgnoreCase(status)) {

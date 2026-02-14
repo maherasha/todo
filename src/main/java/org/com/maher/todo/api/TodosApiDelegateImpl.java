@@ -43,6 +43,12 @@ public class TodosApiDelegateImpl implements TodosApiDelegate {
     }
 
     @Override
+    public ResponseEntity<TodoResponse> markTodoNotDone(UUID id) {
+        TodoResponse response = todoService.markTodoNotDone(id);
+        return ResponseEntity.ok(response);
+    }
+
+    @Override
     public ResponseEntity<List<TodoResponse>> getTodos(String status) {
         List<TodoResponse> responses = todoService.getTodos(status);
         return ResponseEntity.ok(responses);
