@@ -17,7 +17,7 @@ public interface TodoItemRepository extends JpaRepository<TodoItem, UUID> {
 
     List<TodoItem> findByStatusAndDueDatetimeBefore(TodoStatus status, Instant before);
 
-    @Modifying
+    @Modifying(clearAutomatically = true)
     @Query(value = """
             UPDATE todo_item SET status = 'PAST_DUE' WHERE id IN (
                 SELECT id FROM todo_item

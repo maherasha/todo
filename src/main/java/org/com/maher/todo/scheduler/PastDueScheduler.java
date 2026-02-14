@@ -24,7 +24,7 @@ public class PastDueScheduler {
         do {
             updated = todoService.markOverdueAsPastDueBatch(batchSize);
             totalUpdated += updated;
-        } while (updated > 0);
+        } while (updated == batchSize);
         if (totalUpdated > 0) {
             log.info("Marked {} item(s) as past due", totalUpdated);
         }

@@ -11,6 +11,7 @@ import org.com.maher.todo.model.TodoItem;
 import org.com.maher.todo.model.TodoStatus;
 import org.com.maher.todo.repository.TodoItemRepository;
 import org.springframework.stereotype.Service;
+import org.springframework.transaction.annotation.Propagation;
 import org.springframework.transaction.annotation.Transactional;
 
 import java.time.Instant;
@@ -78,7 +79,7 @@ public class TodoService {
         return mapper.toResponse(saved);
     }
 
-    @Transactional
+    @Transactional(propagation = Propagation.REQUIRES_NEW)
     public int markOverdueAsPastDueBatch(int batchSize) {
         return repository.markOverdueAsPastDueBatch(Instant.now(), batchSize);
     }
