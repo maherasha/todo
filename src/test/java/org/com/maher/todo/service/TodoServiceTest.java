@@ -209,32 +209,27 @@ class TodoServiceTest {
         verify(repository, never()).save(any());
     }
 
-    // --- markOverdueItemsAsPastDue ---
+    // --- markOverdueAsPastDueBatch ---
 
     @Test
-    void markOverdue_setsMatchingItemsToPastDue() {
-        TodoItem overdueItem = new TodoItem();
-        overdueItem.setStatus(TodoStatus.NOT_DONE);
+    void markOverdueBatch_delegatesToRepositoryAndReturnsCount() {
+        when(repository.markOverdueAsPastDueBatch(any(Instant.class), eq(1000)))
+                .thenReturn(5);
 
-        when(repository.findByStatusAndDueDatetimeBefore(eq(TodoStatus.NOT_DONE), any(Instant.class)))
-                .thenReturn(List.of(overdueItem));
+        int count = todoService.markOverdueAsPastDueBatch(1000);
 
-        int count = todoService.markOverdueItemsAsPastDue();
-
-        assertThat(count).isEqualTo(1);
-        assertThat(overdueItem.getStatus()).isEqualTo(TodoStatus.PAST_DUE);
-        verify(repository).saveAll(List.of(overdueItem));
+        assertThat(count).isEqualTo(5);
+        verify(repository).markOverdueAsPastDueBatch(any(Instant.class), eq(1000));
     }
 
     @Test
-    void markOverdue_returnsZeroWhenNoneOverdue() {
-        when(repository.findByStatusAndDueDatetimeBefore(eq(TodoStatus.NOT_DONE), any(Instant.class)))
-                .thenReturn(List.of());
+    void markOverdueBatch_returnsZeroWhenNoneOverdue() {
+        when(repository.markOverdueAsPastDueBatch(any(Instant.class), eq(1000)))
+                .thenReturn(0);
 
-        int count = todoService.markOverdueItemsAsPastDue();
+        int count = todoService.markOverdueAsPastDueBatch(1000);
 
         assertThat(count).isZero();
-        verify(repository, never()).saveAll(any());
     }
 
     // --- getTodos ---

@@ -11,6 +11,7 @@ import org.com.maher.todo.model.TodoItem;
 import org.com.maher.todo.model.TodoStatus;
 import org.com.maher.todo.repository.TodoItemRepository;
 import org.springframework.stereotype.Service;
+import org.springframework.transaction.annotation.Transactional;
 
 import java.time.Instant;
 import java.util.List;
@@ -23,6 +24,7 @@ public class TodoService {
     private final TodoItemRepository repository;
     private final TodoItemMapper mapper;
 
+    @Transactional
     public TodoResponse createTodo(CreateTodoRequest request) {
         TodoItem item = mapper.toEntity(request);
         item.setStatus(TodoStatus.NOT_DONE);
@@ -31,12 +33,14 @@ public class TodoService {
         return mapper.toResponse(saved);
     }
 
+    @Transactional(readOnly = true)
     public TodoResponse getTodoById(UUID id) {
         TodoItem item = repository.findById(id)
                 .orElseThrow(() -> new TodoNotFoundException(id));
         return mapper.toResponse(item);
     }
 
+    @Transactional
     public TodoResponse updateTodoDescription(UUID id, UpdateTodoRequest request) {
         TodoItem item = repository.findById(id)
                 .orElseThrow(() -> new TodoNotFoundException(id));
@@ -48,6 +52,7 @@ public class TodoService {
         return mapper.toResponse(saved);
     }
 
+    @Transactional
     public TodoResponse markTodoDone(UUID id) {
         TodoItem item = repository.findById(id)
                 .orElseThrow(() -> new TodoNotFoundException(id));
@@ -60,6 +65,7 @@ public class TodoService {
         return mapper.toResponse(saved);
     }
 
+    @Transactional
     public TodoResponse markTodoNotDone(UUID id) {
         TodoItem item = repository.findById(id)
                 .orElseThrow(() -> new TodoNotFoundException(id));
@@ -72,17 +78,12 @@ public class TodoService {
         return mapper.toResponse(saved);
     }
 
-    public int markOverdueItemsAsPastDue() {
-        List<TodoItem> overdueItems = repository.findByStatusAndDueDatetimeBefore(
-                TodoStatus.NOT_DONE, Instant.now());
-        if (overdueItems.isEmpty()) {
-            return 0;
-        }
-        overdueItems.forEach(item -> item.setStatus(TodoStatus.PAST_DUE));
-        repository.saveAll(overdueItems);
-        return overdueItems.size();
+    @Transactional
+    public int markOverdueAsPastDueBatch(int batchSize) {
+        return repository.markOverdueAsPastDueBatch(Instant.now(), batchSize);
     }
 
+    @Transactional(readOnly = true)
     public List<TodoResponse> getTodos(String status) {
         List<TodoItem> items;
         if ("all".equalsIgnoreCase(status)) {

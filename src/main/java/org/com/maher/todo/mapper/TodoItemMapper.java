@@ -23,8 +23,8 @@ public interface TodoItemMapper {
     @Mapping(target = "doneDatetime", ignore = true)
     TodoItem toEntity(CreateTodoRequest request);
 
-    default String mapStatus(TodoStatus status) {
-        return status != null ? status.getValue() : null;
+    default TodoResponse.StatusEnum mapStatus(TodoStatus status) {
+        return status != null ? TodoResponse.StatusEnum.fromValue(status.name()) : null;
     }
 
     default LocalDateTime mapInstantToLocalDateTime(Instant instant) {

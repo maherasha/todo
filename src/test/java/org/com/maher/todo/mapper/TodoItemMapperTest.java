@@ -2,6 +2,7 @@ package org.com.maher.todo.mapper;
 
 import org.com.maher.todo.api.model.CreateTodoRequest;
 import org.com.maher.todo.api.model.TodoResponse;
+import org.com.maher.todo.api.model.TodoResponse.StatusEnum;
 import org.com.maher.todo.model.TodoItem;
 import org.com.maher.todo.model.TodoStatus;
 import org.junit.jupiter.api.Test;
@@ -31,7 +32,7 @@ class TodoItemMapperTest {
 
         assertThat(response.getId()).isEqualTo(item.getId());
         assertThat(response.getDescription()).isEqualTo("Test task");
-        assertThat(response.getStatus()).isEqualTo("not done");
+        assertThat(response.getStatus()).isEqualTo(TodoResponse.StatusEnum.NOT_DONE);
         assertThat(response.getCreationDatetime()).isEqualTo(LocalDateTime.of(2026, 2, 14, 10, 0));
         assertThat(response.getDueDatetime()).isEqualTo(LocalDateTime.of(2026, 3, 15, 10, 0));
         assertThat(response.getDoneDatetime()).isNull();

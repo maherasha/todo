@@ -38,7 +38,7 @@ class TodoApiTest {
 
     @Test
     void createTodo_returns201WithValidRequest() throws Exception {
-        TodoResponse response = buildResponse(TODO_ID, "Buy groceries", "not done");
+        TodoResponse response = buildResponse(TODO_ID, "Buy groceries", TodoResponse.StatusEnum.NOT_DONE);
         when(todoService.createTodo(any())).thenReturn(response);
 
         mockMvc.perform(post("/api/v1/todos")
@@ -49,7 +49,7 @@ class TodoApiTest {
                 .andExpect(status().isCreated())
                 .andExpect(jsonPath("$.id").value(TODO_ID.toString()))
                 .andExpect(jsonPath("$.description").value("Buy groceries"))
-                .andExpect(jsonPath("$.status").value("not done"));
+                .andExpect(jsonPath("$.status").value("NOT_DONE"));
     }
 
     @Test
@@ -68,7 +68,7 @@ class TodoApiTest {
 
     @Test
     void getTodoById_returns200WhenFound() throws Exception {
-        TodoResponse response = buildResponse(TODO_ID, "Buy groceries", "not done");
+        TodoResponse response = buildResponse(TODO_ID, "Buy groceries", TodoResponse.StatusEnum.NOT_DONE);
         when(todoService.getTodoById(TODO_ID)).thenReturn(response);
 
         mockMvc.perform(get("/api/v1/todos/{id}", TODO_ID))
@@ -92,7 +92,7 @@ class TodoApiTest {
 
     @Test
     void getTodos_returns200WithList() throws Exception {
-        TodoResponse response = buildResponse(TODO_ID, "Buy groceries", "not done");
+        TodoResponse response = buildResponse(TODO_ID, "Buy groceries", TodoResponse.StatusEnum.NOT_DONE);
         when(todoService.getTodos(null)).thenReturn(List.of(response));
 
         mockMvc.perform(get("/api/v1/todos"))
@@ -104,7 +104,7 @@ class TodoApiTest {
 
     @Test
     void updateDescription_returns200WithValidRequest() throws Exception {
-        TodoResponse response = buildResponse(TODO_ID, "Updated", "not done");
+        TodoResponse response = buildResponse(TODO_ID, "Updated", TodoResponse.StatusEnum.NOT_DONE);
         when(todoService.updateTodoDescription(eq(TODO_ID), any())).thenReturn(response);
 
         mockMvc.perform(put("/api/v1/todos/{id}", TODO_ID)
@@ -144,12 +144,12 @@ class TodoApiTest {
 
     @Test
     void markDone_returns200() throws Exception {
-        TodoResponse response = buildResponse(TODO_ID, "Buy groceries", "done");
+        TodoResponse response = buildResponse(TODO_ID, "Buy groceries", TodoResponse.StatusEnum.DONE);
         when(todoService.markTodoDone(TODO_ID)).thenReturn(response);
 
         mockMvc.perform(patch("/api/v1/todos/{id}/done", TODO_ID))
                 .andExpect(status().isOk())
-                .andExpect(jsonPath("$.status").value("done"));
+                .andExpect(jsonPath("$.status").value("DONE"));
     }
 
     @Test
@@ -164,12 +164,12 @@ class TodoApiTest {
 
     @Test
     void markNotDone_returns200() throws Exception {
-        TodoResponse response = buildResponse(TODO_ID, "Buy groceries", "not done");
+        TodoResponse response = buildResponse(TODO_ID, "Buy groceries", TodoResponse.StatusEnum.NOT_DONE);
         when(todoService.markTodoNotDone(TODO_ID)).thenReturn(response);
 
         mockMvc.perform(patch("/api/v1/todos/{id}/not-done", TODO_ID))
                 .andExpect(status().isOk())
-                .andExpect(jsonPath("$.status").value("not done"));
+                .andExpect(jsonPath("$.status").value("NOT_DONE"));
     }
 
     @Test
@@ -182,7 +182,7 @@ class TodoApiTest {
 
     // --- Helper ---
 
-    private TodoResponse buildResponse(UUID id, String description, String status) {
+    private TodoResponse buildResponse(UUID id, String description, TodoResponse.StatusEnum status) {
         TodoResponse response = new TodoResponse();
         response.setId(id);
         response.setDescription(description);

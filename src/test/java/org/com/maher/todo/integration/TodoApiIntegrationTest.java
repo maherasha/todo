@@ -30,7 +30,7 @@ class TodoApiIntegrationTest {
                             {"description": "Integration test task", "dueDatetime": "2026-12-31T23:59:59"}
                             """))
                 .andExpect(status().isCreated())
-                .andExpect(jsonPath("$.status").value("not done"))
+                .andExpect(jsonPath("$.status").value("NOT_DONE"))
                 .andExpect(jsonPath("$.doneDatetime").isEmpty())
                 .andReturn();
 
@@ -53,13 +53,13 @@ class TodoApiIntegrationTest {
         // 4. Mark as done
         mockMvc.perform(patch("/api/v1/todos/{id}/done", id))
                 .andExpect(status().isOk())
-                .andExpect(jsonPath("$.status").value("done"))
+                .andExpect(jsonPath("$.status").value("DONE"))
                 .andExpect(jsonPath("$.doneDatetime").isNotEmpty());
 
         // 5. Mark as not done
         mockMvc.perform(patch("/api/v1/todos/{id}/not-done", id))
                 .andExpect(status().isOk())
-                .andExpect(jsonPath("$.status").value("not done"))
+                .andExpect(jsonPath("$.status").value("NOT_DONE"))
                 .andExpect(jsonPath("$.doneDatetime").isEmpty());
 
         // 6. List defaults to not-done items

@@ -235,7 +235,11 @@ components:
         status:
           type: string
           description: Current status of the item
-          example: not done
+          enum:
+            - NOT_DONE
+            - DONE
+            - PAST_DUE
+          example: NOT_DONE
         creationDatetime:
           type: string
           format: date-time
