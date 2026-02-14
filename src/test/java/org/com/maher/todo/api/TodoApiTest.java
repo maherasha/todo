@@ -180,6 +180,19 @@ class TodoApiTest {
                 .andExpect(status().isNotFound());
     }
 
+    // --- Optimistic locking ---
+
+    @Test
+    void markDone_returns409WhenOptimisticLockConflict() throws Exception {
+        when(todoService.markTodoDone(TODO_ID))
+                .thenThrow(new org.springframework.dao.OptimisticLockingFailureException("Version conflict"));
+
+        mockMvc.perform(patch("/api/v1/todos/{id}/done", TODO_ID))
+                .andExpect(status().isConflict())
+                .andExpect(jsonPath("$.status").value(409))
+                .andExpect(jsonPath("$.message").value("The item was modified by another request. Please retry."));
+    }
+
     // --- Helper ---
 
     private TodoResponse buildResponse(UUID id, String description, TodoResponse.StatusEnum status) {

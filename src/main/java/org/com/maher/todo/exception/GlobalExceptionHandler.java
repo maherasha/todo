@@ -1,6 +1,7 @@
 package org.com.maher.todo.exception;
 
 import org.com.maher.todo.api.model.ErrorResponse;
+import org.springframework.dao.OptimisticLockingFailureException;
 import org.springframework.http.HttpStatus;
 import org.springframework.http.ResponseEntity;
 import org.springframework.web.bind.MethodArgumentNotValidException;
@@ -20,6 +21,11 @@ public class GlobalExceptionHandler {
     @ExceptionHandler(PastDueModificationException.class)
     public ResponseEntity<ErrorResponse> handlePastDue(PastDueModificationException ex) {
         return buildResponse(HttpStatus.CONFLICT, ex.getMessage());
+    }
+
+    @ExceptionHandler(OptimisticLockingFailureException.class)
+    public ResponseEntity<ErrorResponse> handleOptimisticLock(OptimisticLockingFailureException ex) {
+        return buildResponse(HttpStatus.CONFLICT, "The item was modified by another request. Please retry.");
     }
 
     @ExceptionHandler(MethodArgumentNotValidException.class)

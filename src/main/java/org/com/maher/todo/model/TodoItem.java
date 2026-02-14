@@ -7,6 +7,7 @@ import jakarta.persistence.Enumerated;
 import jakarta.persistence.Id;
 import jakarta.persistence.Index;
 import jakarta.persistence.Table;
+import jakarta.persistence.Version;
 import org.hibernate.annotations.UuidGenerator;
 import lombok.Getter;
 import lombok.NoArgsConstructor;
@@ -42,4 +43,7 @@ public class TodoItem {
     private Instant dueDatetime;
 
     private Instant doneDatetime;
+
+    @Version
+    private Long version;
 }
