@@ -13,7 +13,7 @@ tags:
     description: Todo item management
 
 paths:
-  /api/todos:
+  /api/v1/todos:
     post:
       tags:
         - todos
@@ -61,7 +61,7 @@ paths:
                 items:
                   $ref: '#/components/schemas/TodoResponse'
 
-  /api/todos/{id}:
+  /api/v1/todos/{id}:
     get:
       tags:
         - todos
@@ -122,7 +122,7 @@ paths:
               schema:
                 $ref: '#/components/schemas/ErrorResponse'
 
-  /api/todos/{id}/done:
+  /api/v1/todos/{id}/done:
     patch:
       tags:
         - todos
@@ -150,7 +150,7 @@ paths:
               schema:
                 $ref: '#/components/schemas/ErrorResponse'
 
-  /api/todos/{id}/not-done:
+  /api/v1/todos/{id}/not-done:
     patch:
       tags:
         - todos
