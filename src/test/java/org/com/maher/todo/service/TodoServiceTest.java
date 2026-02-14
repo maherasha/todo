@@ -24,6 +24,7 @@ import java.util.UUID;
 import static org.assertj.core.api.Assertions.assertThat;
 import static org.assertj.core.api.Assertions.assertThatThrownBy;
 import static org.mockito.ArgumentMatchers.any;
+import static org.mockito.ArgumentMatchers.eq;
 import static org.mockito.Mockito.*;
 
 @ExtendWith(MockitoExtension.class)
@@ -206,6 +207,34 @@ class TodoServiceTest {
                 .isInstanceOf(PastDueModificationException.class);
 
         verify(repository, never()).save(any());
+    }
+
+    // --- markOverdueItemsAsPastDue ---
+
+    @Test
+    void markOverdue_setsMatchingItemsToPastDue() {
+        TodoItem overdueItem = new TodoItem();
+        overdueItem.setStatus(TodoStatus.NOT_DONE);
+
+        when(repository.findByStatusAndDueDatetimeBefore(eq(TodoStatus.NOT_DONE), any(Instant.class)))
+                .thenReturn(List.of(overdueItem));
+
+        int count = todoService.markOverdueItemsAsPastDue();
+
+        assertThat(count).isEqualTo(1);
+        assertThat(overdueItem.getStatus()).isEqualTo(TodoStatus.PAST_DUE);
+        verify(repository).saveAll(List.of(overdueItem));
+    }
+
+    @Test
+    void markOverdue_returnsZeroWhenNoneOverdue() {
+        when(repository.findByStatusAndDueDatetimeBefore(eq(TodoStatus.NOT_DONE), any(Instant.class)))
+                .thenReturn(List.of());
+
+        int count = todoService.markOverdueItemsAsPastDue();
+
+        assertThat(count).isZero();
+        verify(repository, never()).saveAll(any());
     }
 
     // --- getTodos ---

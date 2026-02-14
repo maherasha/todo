@@ -72,6 +72,17 @@ public class TodoService {
         return mapper.toResponse(saved);
     }
 
+    public int markOverdueItemsAsPastDue() {
+        List<TodoItem> overdueItems = repository.findByStatusAndDueDatetimeBefore(
+                TodoStatus.NOT_DONE, Instant.now());
+        if (overdueItems.isEmpty()) {
+            return 0;
+        }
+        overdueItems.forEach(item -> item.setStatus(TodoStatus.PAST_DUE));
+        repository.saveAll(overdueItems);
+        return overdueItems.size();
+    }
+
     public List<TodoResponse> getTodos(String status) {
         List<TodoItem> items;
         if ("all".equalsIgnoreCase(status)) {
