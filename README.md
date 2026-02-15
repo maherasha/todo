@@ -79,6 +79,27 @@ The application starts on port **8080**.
 
 ## Project Structure
 
+```
+src/main/java/org/com/maher/todo/
+├── TodoApplication.java
+├── api/
+│   └── TodosApiDelegateImpl.java
+├── exception/
+│   ├── GlobalExceptionHandler.java
+│   ├── PastDueModificationException.java
+│   └── TodoNotFoundException.java
+├── mapper/
+│   └── TodoItemMapper.java
+├── model/
+│   ├── TodoItem.java
+│   └── TodoStatus.java
+├── repository/
+│   └── TodoItemRepository.java
+├── scheduler/
+│   └── PastDueScheduler.java
+└── service/
+    └── TodoService.java
+```
+
 - `src/main/resources/openapi/api.yaml` - OpenAPI contract (source of truth)
 - `target/generated-sources/openapi/` - Generated controller, delegate, and DTOs (do not edit)
-- `src/main/java/org/com/maher/todo/` - Application code
