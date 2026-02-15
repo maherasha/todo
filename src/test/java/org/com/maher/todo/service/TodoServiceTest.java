@@ -67,6 +67,19 @@ class TodoServiceTest {
         assertThat(mappedEntity.getCreationDatetime()).isNotNull();
     }
 
+    @Test
+    void createTodo_rejectsPastDueDatetime() {
+        CreateTodoRequest request = new CreateTodoRequest();
+        request.setDescription("Buy groceries");
+        request.setDueDatetime(LocalDateTime.of(2020, 1, 1, 10, 0));
+
+        assertThatThrownBy(() -> todoService.createTodo(request))
+                .isInstanceOf(IllegalArgumentException.class)
+                .hasMessageContaining("dueDatetime must be in the future");
+
+        verify(repository, never()).save(any());
+    }
+
     // --- getTodoById ---
 
     @Test

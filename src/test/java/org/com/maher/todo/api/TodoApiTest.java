@@ -65,6 +65,21 @@ class TodoApiTest {
                 .andExpect(jsonPath("$.message").exists());
     }
 
+    @Test
+    void createTodo_returns400WhenDueDatetimeInPast() throws Exception {
+        when(todoService.createTodo(any()))
+                .thenThrow(new IllegalArgumentException("dueDatetime must be in the future"));
+
+        mockMvc.perform(post("/api/v1/todos")
+                        .contentType(MediaType.APPLICATION_JSON)
+                        .content("""
+                            {"description": "Buy groceries", "dueDatetime": "2020-01-01T10:00:00"}
+                            """))
+                .andExpect(status().isBadRequest())
+                .andExpect(jsonPath("$.status").value(400))
+                .andExpect(jsonPath("$.message").value("dueDatetime must be in the future"));
+    }
+
     // --- GET /api/v1/todos/{id} ---
 
     @Test

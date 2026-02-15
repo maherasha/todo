@@ -93,6 +93,18 @@ class TodoApiIntegrationTest {
     }
 
     @Test
+    void createTodo_rejectsPastDueDatetime() throws Exception {
+        mockMvc.perform(post("/api/v1/todos")
+                        .contentType(MediaType.APPLICATION_JSON)
+                        .content("""
+                            {"description": "Past task", "dueDatetime": "2020-01-01T10:00:00"}
+                            """))
+                .andExpect(status().isBadRequest())
+                .andExpect(jsonPath("$.status").value(400))
+                .andExpect(jsonPath("$.message").value("dueDatetime must be in the future"));
+    }
+
+    @Test
     void getTodoById_returns404ForNonExistentId() throws Exception {
         mockMvc.perform(get("/api/v1/todos/{id}", "00000000-0000-0000-0000-000000000000"))
                 .andExpect(status().isNotFound())
