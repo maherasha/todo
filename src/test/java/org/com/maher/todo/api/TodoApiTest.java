@@ -1,5 +1,6 @@
 package org.com.maher.todo.api;
 
+import org.com.maher.todo.api.model.TodoPageResponse;
 import org.com.maher.todo.api.model.TodoResponse;
 import org.com.maher.todo.exception.PastDueModificationException;
 import org.com.maher.todo.exception.TodoNotFoundException;
@@ -91,13 +92,18 @@ class TodoApiTest {
     // --- GET /api/v1/todos ---
 
     @Test
-    void getTodos_returns200WithList() throws Exception {
+    void getTodos_returns200WithPaginatedResponse() throws Exception {
         TodoResponse response = buildResponse(TODO_ID, "Buy groceries", TodoResponse.StatusEnum.NOT_DONE);
-        when(todoService.getTodos(null)).thenReturn(List.of(response));
+        TodoPageResponse pageResponse = new TodoPageResponse();
+        pageResponse.setItems(List.of(response));
+        pageResponse.setTotalCount(1L);
+        when(todoService.getTodos(null, 0, 100)).thenReturn(pageResponse);
+        // Generated controller injects defaults: page=0, size=100
 
         mockMvc.perform(get("/api/v1/todos"))
                 .andExpect(status().isOk())
-                .andExpect(jsonPath("$[0].id").value(TODO_ID.toString()));
+                .andExpect(jsonPath("$.items[0].id").value(TODO_ID.toString()))
+                .andExpect(jsonPath("$.totalCount").value(1));
     }
 
     // --- PUT /api/v1/todos/{id} ---

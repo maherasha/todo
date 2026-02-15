@@ -2,6 +2,7 @@ package org.com.maher.todo.api;
 
 import lombok.RequiredArgsConstructor;
 import org.com.maher.todo.api.model.CreateTodoRequest;
+import org.com.maher.todo.api.model.TodoPageResponse;
 import org.com.maher.todo.api.model.TodoResponse;
 import org.com.maher.todo.api.model.UpdateTodoRequest;
 import org.com.maher.todo.service.TodoService;
@@ -9,7 +10,6 @@ import org.springframework.http.HttpStatus;
 import org.springframework.http.ResponseEntity;
 import org.springframework.stereotype.Service;
 
-import java.util.List;
 import java.util.UUID;
 
 @Service
@@ -49,8 +49,8 @@ public class TodosApiDelegateImpl implements TodosApiDelegate {
     }
 
     @Override
-    public ResponseEntity<List<TodoResponse>> getTodos(String status) {
-        List<TodoResponse> responses = todoService.getTodos(status);
-        return ResponseEntity.ok(responses);
+    public ResponseEntity<TodoPageResponse> getTodos(String status, Integer page, Integer size) {
+        TodoPageResponse response = todoService.getTodos(status, page, size);
+        return ResponseEntity.ok(response);
     }
 }

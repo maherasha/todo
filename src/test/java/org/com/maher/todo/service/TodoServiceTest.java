@@ -1,6 +1,7 @@
 package org.com.maher.todo.service;
 
 import org.com.maher.todo.api.model.CreateTodoRequest;
+import org.com.maher.todo.api.model.TodoPageResponse;
 import org.com.maher.todo.api.model.TodoResponse;
 import org.com.maher.todo.api.model.UpdateTodoRequest;
 import org.com.maher.todo.exception.PastDueModificationException;
@@ -14,6 +15,9 @@ import org.junit.jupiter.api.extension.ExtendWith;
 import org.mockito.InjectMocks;
 import org.mockito.Mock;
 import org.mockito.junit.jupiter.MockitoExtension;
+
+import org.springframework.data.domain.PageImpl;
+import org.springframework.data.domain.Pageable;
 
 import java.time.Instant;
 import java.time.LocalDateTime;
@@ -232,21 +236,23 @@ class TodoServiceTest {
         assertThat(count).isZero();
     }
 
-    // --- getTodos ---
+    // --- getTodos (offset pagination) ---
 
     @Test
     void getTodos_defaultReturnsNotDoneItemsOnly() {
         TodoItem item = new TodoItem();
         TodoResponse response = new TodoResponse();
 
-        when(repository.findByStatus(TodoStatus.NOT_DONE)).thenReturn(List.of(item));
-        when(mapper.toResponse(item)).thenReturn(response);
+        when(repository.findByStatus(eq(TodoStatus.NOT_DONE), any(Pageable.class)))
+                .thenReturn(new PageImpl<>(List.of(item)));
+        when(mapper.toResponseList(List.of(item))).thenReturn(List.of(response));
 
-        List<TodoResponse> result = todoService.getTodos(null);
+        TodoPageResponse result = todoService.getTodos(null, 0, 100);
 
-        assertThat(result).containsExactly(response);
-        verify(repository).findByStatus(TodoStatus.NOT_DONE);
-        verify(repository, never()).findAll();
+        assertThat(result.getItems()).containsExactly(response);
+        assertThat(result.getTotalCount()).isEqualTo(1L);
+        verify(repository).findByStatus(eq(TodoStatus.NOT_DONE), any(Pageable.class));
+        verify(repository, never()).findAll(any(Pageable.class));
     }
 
     @Test
@@ -254,13 +260,43 @@ class TodoServiceTest {
         TodoItem item = new TodoItem();
         TodoResponse response = new TodoResponse();
 
-        when(repository.findAll()).thenReturn(List.of(item));
-        when(mapper.toResponse(item)).thenReturn(response);
+        when(repository.findAll(any(Pageable.class))).thenReturn(new PageImpl<>(List.of(item)));
+        when(mapper.toResponseList(List.of(item))).thenReturn(List.of(response));
 
-        List<TodoResponse> result = todoService.getTodos("all");
+        TodoPageResponse result = todoService.getTodos("all", 0, 100);
 
-        assertThat(result).containsExactly(response);
-        verify(repository).findAll();
-        verify(repository, never()).findByStatus(any());
+        assertThat(result.getItems()).containsExactly(response);
+        assertThat(result.getTotalCount()).isEqualTo(1L);
+        verify(repository).findAll(any(Pageable.class));
+        verify(repository, never()).findByStatus(any(), any(Pageable.class));
+    }
+
+    @Test
+    void getTodos_respectsCustomSize() {
+        when(repository.findAll(any(Pageable.class))).thenReturn(new PageImpl<>(List.of()));
+
+        todoService.getTodos("all", 0, 10);
+
+        verify(repository).findAll(any(Pageable.class));
+    }
+
+    @Test
+    void getTodos_respectsPage() {
+        when(repository.findAll(any(Pageable.class))).thenReturn(new PageImpl<>(List.of()));
+
+        todoService.getTodos("all", 2, 25);
+
+        verify(repository).findAll(any(Pageable.class));
+    }
+
+    @Test
+    void getTodos_emptyResultReturnsTotalCountZero() {
+        when(repository.findByStatus(eq(TodoStatus.NOT_DONE), any(Pageable.class)))
+                .thenReturn(new PageImpl<>(List.of()));
+
+        TodoPageResponse result = todoService.getTodos(null, 0, 100);
+
+        assertThat(result.getItems()).isEmpty();
+        assertThat(result.getTotalCount()).isZero();
     }
 }

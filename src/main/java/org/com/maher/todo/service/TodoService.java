@@ -1,7 +1,9 @@
 package org.com.maher.todo.service;
 
 import lombok.RequiredArgsConstructor;
+import lombok.extern.slf4j.Slf4j;
 import org.com.maher.todo.api.model.CreateTodoRequest;
+import org.com.maher.todo.api.model.TodoPageResponse;
 import org.com.maher.todo.api.model.TodoResponse;
 import org.com.maher.todo.api.model.UpdateTodoRequest;
 import org.com.maher.todo.exception.PastDueModificationException;
@@ -10,6 +12,9 @@ import org.com.maher.todo.mapper.TodoItemMapper;
 import org.com.maher.todo.model.TodoItem;
 import org.com.maher.todo.model.TodoStatus;
 import org.com.maher.todo.repository.TodoItemRepository;
+import org.springframework.data.domain.Page;
+import org.springframework.data.domain.PageRequest;
+import org.springframework.data.domain.Pageable;
 import org.springframework.stereotype.Service;
 import org.springframework.transaction.annotation.Propagation;
 import org.springframework.transaction.annotation.Transactional;
@@ -18,6 +23,7 @@ import java.time.Instant;
 import java.util.List;
 import java.util.UUID;
 
+@Slf4j
 @Service
 @RequiredArgsConstructor
 public class TodoService {
@@ -31,6 +37,7 @@ public class TodoService {
         item.setStatus(TodoStatus.NOT_DONE);
         item.setCreationDatetime(Instant.now());
         TodoItem saved = repository.save(item);
+        log.debug("Created todo id={}", saved.getId());
         return mapper.toResponse(saved);
     }
 
@@ -63,6 +70,7 @@ public class TodoService {
         item.setStatus(TodoStatus.DONE);
         item.setDoneDatetime(Instant.now());
         TodoItem saved = repository.save(item);
+        log.info("Todo id={} marked as DONE", id);
         return mapper.toResponse(saved);
     }
 
@@ -76,6 +84,7 @@ public class TodoService {
         item.setStatus(TodoStatus.NOT_DONE);
         item.setDoneDatetime(null);
         TodoItem saved = repository.save(item);
+        log.info("Todo id={} marked as NOT_DONE", id);
         return mapper.toResponse(saved);
     }
 
@@ -85,15 +94,16 @@ public class TodoService {
     }
 
     @Transactional(readOnly = true)
-    public List<TodoResponse> getTodos(String status) {
-        List<TodoItem> items;
-        if ("all".equalsIgnoreCase(status)) {
-            items = repository.findAll();
-        } else {
-            items = repository.findByStatus(TodoStatus.NOT_DONE);
-        }
-        return items.stream()
-                .map(mapper::toResponse)
-                .toList();
+    public TodoPageResponse getTodos(String status, Integer page, Integer size) {
+        Pageable pageable = PageRequest.of(page, size);
+
+        Page<TodoItem> result = "all".equalsIgnoreCase(status)
+                ? repository.findAll(pageable)
+                : repository.findByStatus(TodoStatus.NOT_DONE, pageable);
+
+        TodoPageResponse response = new TodoPageResponse();
+        response.setItems(mapper.toResponseList(result.getContent()));
+        response.setTotalCount(result.getTotalElements());
+        return response;
     }
 }

@@ -33,14 +33,6 @@ class TodoItemRepositoryTest {
     }
 
     @Test
-    void findByStatus_returnsOnlyMatchingItems() {
-        List<TodoItem> result = repository.findByStatus(TodoStatus.NOT_DONE);
-
-        assertThat(result).hasSize(1);
-        assertThat(result.get(0).getDescription()).isEqualTo("Active task");
-    }
-
-    @Test
     void findByStatusAndDueDatetimeBefore_filtersCorrectly() {
         List<TodoItem> result = repository.findByStatusAndDueDatetimeBefore(
                 TodoStatus.NOT_DONE, Instant.now().plus(30, ChronoUnit.DAYS));

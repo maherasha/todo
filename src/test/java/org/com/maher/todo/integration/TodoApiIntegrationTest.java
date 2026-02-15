@@ -62,10 +62,34 @@ class TodoApiIntegrationTest {
                 .andExpect(jsonPath("$.status").value("NOT_DONE"))
                 .andExpect(jsonPath("$.doneDatetime").isEmpty());
 
-        // 6. List defaults to not-done items
+        // 6. List defaults to not-done items (paginated response)
         mockMvc.perform(get("/api/v1/todos"))
                 .andExpect(status().isOk())
-                .andExpect(jsonPath("$[0].id").value(id));
+                .andExpect(jsonPath("$.items[0].id").value(id))
+                .andExpect(jsonPath("$.totalCount").value(1));
+    }
+
+    @Test
+    void getTodos_pagination() throws Exception {
+        // Create 3 items
+        for (int i = 1; i <= 3; i++) {
+            mockMvc.perform(post("/api/v1/todos")
+                            .contentType(MediaType.APPLICATION_JSON)
+                            .content("{\"description\": \"Task " + i + "\", \"dueDatetime\": \"2026-12-31T23:59:59\"}"))
+                    .andExpect(status().isCreated());
+        }
+
+        // Page 0: size=2
+        mockMvc.perform(get("/api/v1/todos").param("status", "all").param("size", "2"))
+                .andExpect(status().isOk())
+                .andExpect(jsonPath("$.items.length()").value(2))
+                .andExpect(jsonPath("$.totalCount").value(3));
+
+        // Page 1: size=2
+        mockMvc.perform(get("/api/v1/todos").param("status", "all").param("size", "2").param("page", "1"))
+                .andExpect(status().isOk())
+                .andExpect(jsonPath("$.items.length()").value(1))
+                .andExpect(jsonPath("$.totalCount").value(3));
     }
 
     @Test

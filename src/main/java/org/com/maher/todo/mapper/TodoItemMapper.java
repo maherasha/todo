@@ -10,12 +10,14 @@ import org.mapstruct.Mapping;
 import java.time.Instant;
 import java.time.LocalDateTime;
 import java.time.ZoneOffset;
+import java.util.List;
 
 @Mapper
 public interface TodoItemMapper {
 
-    @Mapping(target = "status", source = "status")
     TodoResponse toResponse(TodoItem entity);
+
+    List<TodoResponse> toResponseList(List<TodoItem> entities);
 
     @Mapping(target = "id", ignore = true)
     @Mapping(target = "status", ignore = true)
