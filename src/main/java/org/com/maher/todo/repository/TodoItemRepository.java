@@ -22,10 +22,9 @@ public interface TodoItemRepository extends JpaRepository<TodoItem, UUID> {
     @Modifying(clearAutomatically = true)
     @Query(value = """
             UPDATE todo_item SET status = 'PAST_DUE', version = version + 1 WHERE id IN (
-                SELECT id FROM todo_item
+                SELECT TOP(:batchSize) id FROM todo_item
                 WHERE status = 'NOT_DONE' AND due_datetime < :now
-                LIMIT :batchSize
-                FOR UPDATE SKIP LOCKED
+                FOR UPDATE
             )
             """, nativeQuery = true)
     int markOverdueAsPastDueBatch(

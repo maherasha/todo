@@ -27,7 +27,7 @@ class TodoApiIntegrationTest {
         MvcResult createResult = mockMvc.perform(post("/api/v1/todos")
                         .contentType(MediaType.APPLICATION_JSON)
                         .content("""
-                            {"description": "Integration test task", "dueDatetime": "2026-12-31T23:59:59"}
+                            {"description": "Integration test task", "dueDatetime": "2026-12-31T23:59:59Z"}
                             """))
                 .andExpect(status().isCreated())
                 .andExpect(jsonPath("$.status").value("NOT_DONE"))
@@ -75,7 +75,7 @@ class TodoApiIntegrationTest {
         for (int i = 1; i <= 3; i++) {
             mockMvc.perform(post("/api/v1/todos")
                             .contentType(MediaType.APPLICATION_JSON)
-                            .content("{\"description\": \"Task " + i + "\", \"dueDatetime\": \"2026-12-31T23:59:59\"}"))
+                            .content("{\"description\": \"Task " + i + "\", \"dueDatetime\": \"2026-12-31T23:59:59Z\"}"))
                     .andExpect(status().isCreated());
         }
 
@@ -97,7 +97,7 @@ class TodoApiIntegrationTest {
         mockMvc.perform(post("/api/v1/todos")
                         .contentType(MediaType.APPLICATION_JSON)
                         .content("""
-                            {"description": "Past task", "dueDatetime": "2020-01-01T10:00:00"}
+                            {"description": "Past task", "dueDatetime": "2020-01-01T10:00:00Z"}
                             """))
                 .andExpect(status().isBadRequest())
                 .andExpect(jsonPath("$.status").value(400))

@@ -9,7 +9,8 @@ import org.junit.jupiter.api.Test;
 import org.mapstruct.factory.Mappers;
 
 import java.time.Instant;
-import java.time.LocalDateTime;
+import java.time.OffsetDateTime;
+import java.time.ZoneOffset;
 import java.util.UUID;
 
 import static org.assertj.core.api.Assertions.assertThat;
@@ -33,8 +34,10 @@ class TodoItemMapperTest {
         assertThat(response.getId()).isEqualTo(item.getId());
         assertThat(response.getDescription()).isEqualTo("Test task");
         assertThat(response.getStatus()).isEqualTo(TodoResponse.StatusEnum.NOT_DONE);
-        assertThat(response.getCreationDatetime()).isEqualTo(LocalDateTime.of(2026, 2, 14, 10, 0));
-        assertThat(response.getDueDatetime()).isEqualTo(LocalDateTime.of(2026, 3, 15, 10, 0));
+        assertThat(response.getCreationDatetime()).isEqualTo(
+                OffsetDateTime.of(2026, 2, 14, 10, 0, 0, 0, ZoneOffset.UTC));
+        assertThat(response.getDueDatetime()).isEqualTo(
+                OffsetDateTime.of(2026, 3, 15, 10, 0, 0, 0, ZoneOffset.UTC));
         assertThat(response.getDoneDatetime()).isNull();
     }
 
@@ -42,12 +45,13 @@ class TodoItemMapperTest {
     void toEntity_mapsRequestFieldsAndIgnoresOthers() {
         CreateTodoRequest request = new CreateTodoRequest();
         request.setDescription("New task");
-        request.setDueDatetime(LocalDateTime.of(2026, 3, 15, 10, 0));
+        request.setDueDatetime(OffsetDateTime.of(2026, 3, 15, 10, 0, 0, 0, ZoneOffset.UTC));
 
         TodoItem entity = mapper.toEntity(request);
 
         assertThat(entity.getDescription()).isEqualTo("New task");
-        assertThat(entity.getDueDatetime()).isEqualTo(Instant.parse("2026-03-15T10:00:00Z"));
+        assertThat(entity.getDueDatetime()).isEqualTo(
+                Instant.parse("2026-03-15T10:00:00Z"));
         assertThat(entity.getId()).isNull();
         assertThat(entity.getStatus()).isNull();
         assertThat(entity.getCreationDatetime()).isNull();
@@ -60,12 +64,12 @@ class TodoItemMapperTest {
     }
 
     @Test
-    void mapInstantToLocalDateTime_handlesNullGracefully() {
-        assertThat(mapper.mapInstantToLocalDateTime(null)).isNull();
+    void mapInstantToOffsetDateTime_handlesNullGracefully() {
+        assertThat(mapper.mapInstantToOffsetDateTime(null)).isNull();
     }
 
     @Test
-    void mapLocalDateTimeToInstant_handlesNullGracefully() {
-        assertThat(mapper.mapLocalDateTimeToInstant(null)).isNull();
+    void mapOffsetDateTimeToInstant_handlesNullGracefully() {
+        assertThat(mapper.mapOffsetDateTimeToInstant(null)).isNull();
     }
 }

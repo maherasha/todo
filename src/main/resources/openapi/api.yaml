@@ -1,7 +1,12 @@
 openapi: 3.0.3
 info:
   title: Todo List Service API
-  description: RESTful API for managing a simple to-do list
+  description: >-
+    RESTful API for managing a simple to-do list.
+    All datetime fields use ISO 8601 with an explicit UTC offset
+    (e.g. "2026-03-15T10:00:00+01:00" or "2026-03-15T09:00:00Z").
+    The server stores and compares all times in UTC.
+    Responses always return datetimes in UTC (Z suffix).
   version: 1.0.0
 
 servers:
@@ -220,8 +225,11 @@ components:
         dueDatetime:
           type: string
           format: date-time
-          description: Deadline for the task (must be in the future)
-          example: '2026-03-15T10:00:00Z'
+          description: >-
+            Deadline for the task (must be in the future).
+            Must include a UTC offset, e.g. "2026-03-15T10:00:00+01:00" for CET
+            or "2026-03-15T09:00:00Z" for UTC. The server converts to UTC for storage.
+          example: '2026-03-15T10:00:00+01:00'
 
     UpdateTodoRequest:
       type: object
@@ -258,18 +266,18 @@ components:
         creationDatetime:
           type: string
           format: date-time
-          description: When the item was created
+          description: When the item was created (always UTC)
           example: '2026-02-12T08:00:00Z'
         dueDatetime:
           type: string
           format: date-time
-          description: Deadline for the task
-          example: '2026-03-15T10:00:00Z'
+          description: Deadline for the task (always UTC)
+          example: '2026-03-15T09:00:00Z'
         doneDatetime:
           type: string
           format: date-time
           nullable: true
-          description: When the item was marked as done (null if not done)
+          description: When the item was marked as done (always UTC, null if not done)
 
     TodoPageResponse:
       type: object
@@ -289,7 +297,7 @@ components:
         timestamp:
           type: string
           format: date-time
-          description: When the error occurred
+          description: When the error occurred (always UTC)
         status:
           type: integer
           description: HTTP status code

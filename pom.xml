@@ -114,7 +114,7 @@
                                 <delegatePattern>true</delegatePattern>
                                 <useSpringBoot3>true</useSpringBoot3>
                                 <useTags>true</useTags>
-                                <dateLibrary>java8-localdatetime</dateLibrary>
+                                <dateLibrary>java8</dateLibrary>
                                 <openApiNullable>false</openApiNullable>
                                 <skipDefaultInterface>false</skipDefaultInterface>
                             </configOptions>

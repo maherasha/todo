@@ -49,6 +49,53 @@ class TodoItemRepositoryTest {
         assertThat(result).isEmpty();
     }
 
+    @Test
+    void markOverdueAsPastDueBatch_updatesOverdueNotDoneItems() {
+        repository.deleteAll();
+        repository.saveAll(List.of(
+                createItem("Overdue 1", TodoStatus.NOT_DONE, Instant.now().minus(2, ChronoUnit.DAYS)),
+                createItem("Overdue 2", TodoStatus.NOT_DONE, Instant.now().minus(1, ChronoUnit.DAYS)),
+                createItem("Future task", TodoStatus.NOT_DONE, Instant.now().plus(7, ChronoUnit.DAYS)),
+                createItem("Already done", TodoStatus.DONE, Instant.now().minus(1, ChronoUnit.DAYS)),
+                createItem("Already past due", TodoStatus.PAST_DUE, Instant.now().minus(1, ChronoUnit.DAYS))
+        ));
+
+        int updated = repository.markOverdueAsPastDueBatch(Instant.now(), 100);
+
+        assertThat(updated).isEqualTo(2);
+        List<TodoItem> allItems = repository.findAll();
+        assertThat(allItems)
+                .filteredOn(i -> i.getStatus() == TodoStatus.PAST_DUE)
+                .hasSize(3); // 2 newly marked + 1 already past due
+        assertThat(allItems)
+                .filteredOn(i -> i.getDescription().equals("Future task"))
+                .allMatch(i -> i.getStatus() == TodoStatus.NOT_DONE);
+    }
+
+    @Test
+    void markOverdueAsPastDueBatch_respectsBatchSize() {
+        repository.deleteAll();
+        repository.saveAll(List.of(
+                createItem("Overdue 1", TodoStatus.NOT_DONE, Instant.now().minus(3, ChronoUnit.DAYS)),
+                createItem("Overdue 2", TodoStatus.NOT_DONE, Instant.now().minus(2, ChronoUnit.DAYS)),
+                createItem("Overdue 3", TodoStatus.NOT_DONE, Instant.now().minus(1, ChronoUnit.DAYS))
+        ));
+
+        int updated = repository.markOverdueAsPastDueBatch(Instant.now(), 2);
+
+        assertThat(updated).isEqualTo(2);
+    }
+
+    @Test
+    void markOverdueAsPastDueBatch_returnsZeroWhenNothingToUpdate() {
+        repository.deleteAll();
+        repository.save(createItem("Future task", TodoStatus.NOT_DONE, Instant.now().plus(7, ChronoUnit.DAYS)));
+
+        int updated = repository.markOverdueAsPastDueBatch(Instant.now(), 100);
+
+        assertThat(updated).isZero();
+    }
+
     private TodoItem createItem(String description, TodoStatus status, Instant dueDate) {
         TodoItem item = new TodoItem();
         item.setDescription(description);

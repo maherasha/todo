@@ -20,7 +20,6 @@ import org.springframework.transaction.annotation.Propagation;
 import org.springframework.transaction.annotation.Transactional;
 
 import java.time.Instant;
-import java.time.LocalDateTime;
 import java.util.UUID;
 
 @Slf4j
@@ -34,7 +33,7 @@ public class TodoService {
     @Transactional
     public TodoResponse createTodo(CreateTodoRequest request) {
         if (request.getDueDatetime() != null
-                && !request.getDueDatetime().isAfter(LocalDateTime.now())) {
+                && !request.getDueDatetime().toInstant().isAfter(Instant.now())) {
             throw new IllegalArgumentException("dueDatetime must be in the future");
         }
         TodoItem item = mapper.toEntity(request);

@@ -20,7 +20,8 @@ import org.springframework.data.domain.PageImpl;
 import org.springframework.data.domain.Pageable;
 
 import java.time.Instant;
-import java.time.LocalDateTime;
+import java.time.OffsetDateTime;
+import java.time.ZoneOffset;
 import java.util.List;
 import java.util.Optional;
 import java.util.UUID;
@@ -49,7 +50,7 @@ class TodoServiceTest {
     void createTodo_setsStatusToNotDoneAndCreationTime() {
         CreateTodoRequest request = new CreateTodoRequest();
         request.setDescription("Buy groceries");
-        request.setDueDatetime(LocalDateTime.of(2026, 3, 15, 10, 0));
+        request.setDueDatetime(OffsetDateTime.of(2026, 3, 15, 10, 0, 0, 0, ZoneOffset.UTC));
 
         TodoItem mappedEntity = new TodoItem();
         TodoItem savedEntity = new TodoItem();
@@ -71,7 +72,7 @@ class TodoServiceTest {
     void createTodo_rejectsPastDueDatetime() {
         CreateTodoRequest request = new CreateTodoRequest();
         request.setDescription("Buy groceries");
-        request.setDueDatetime(LocalDateTime.of(2020, 1, 1, 10, 0));
+        request.setDueDatetime(OffsetDateTime.of(2020, 1, 1, 10, 0, 0, 0, ZoneOffset.UTC));
 
         assertThatThrownBy(() -> todoService.createTodo(request))
                 .isInstanceOf(IllegalArgumentException.class)

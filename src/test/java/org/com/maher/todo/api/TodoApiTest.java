@@ -13,7 +13,8 @@ import org.springframework.http.MediaType;
 import org.springframework.test.context.bean.override.mockito.MockitoBean;
 import org.springframework.test.web.servlet.MockMvc;
 
-import java.time.LocalDateTime;
+import java.time.OffsetDateTime;
+import java.time.ZoneOffset;
 import java.util.List;
 import java.util.UUID;
 
@@ -45,7 +46,7 @@ class TodoApiTest {
         mockMvc.perform(post("/api/v1/todos")
                         .contentType(MediaType.APPLICATION_JSON)
                         .content("""
-                            {"description": "Buy groceries", "dueDatetime": "2026-03-15T10:00:00"}
+                            {"description": "Buy groceries", "dueDatetime": "2026-03-15T10:00:00Z"}
                             """))
                 .andExpect(status().isCreated())
                 .andExpect(jsonPath("$.id").value(TODO_ID.toString()))
@@ -58,7 +59,7 @@ class TodoApiTest {
         mockMvc.perform(post("/api/v1/todos")
                         .contentType(MediaType.APPLICATION_JSON)
                         .content("""
-                            {"dueDatetime": "2026-03-15T10:00:00"}
+                            {"dueDatetime": "2026-03-15T10:00:00Z"}
                             """))
                 .andExpect(status().isBadRequest())
                 .andExpect(jsonPath("$.status").value(400))
@@ -73,7 +74,7 @@ class TodoApiTest {
         mockMvc.perform(post("/api/v1/todos")
                         .contentType(MediaType.APPLICATION_JSON)
                         .content("""
-                            {"description": "Buy groceries", "dueDatetime": "2020-01-01T10:00:00"}
+                            {"description": "Buy groceries", "dueDatetime": "2020-01-01T10:00:00Z"}
                             """))
                 .andExpect(status().isBadRequest())
                 .andExpect(jsonPath("$.status").value(400))
@@ -221,8 +222,8 @@ class TodoApiTest {
         response.setId(id);
         response.setDescription(description);
         response.setStatus(status);
-        response.setCreationDatetime(LocalDateTime.of(2026, 2, 14, 10, 0));
-        response.setDueDatetime(LocalDateTime.of(2026, 3, 15, 10, 0));
+        response.setCreationDatetime(OffsetDateTime.of(2026, 2, 14, 10, 0, 0, 0, ZoneOffset.UTC));
+        response.setDueDatetime(OffsetDateTime.of(2026, 3, 15, 10, 0, 0, 0, ZoneOffset.UTC));
         return response;
     }
 }

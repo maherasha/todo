@@ -8,7 +8,7 @@ import org.mapstruct.Mapper;
 import org.mapstruct.Mapping;
 
 import java.time.Instant;
-import java.time.LocalDateTime;
+import java.time.OffsetDateTime;
 import java.time.ZoneOffset;
 import java.util.List;
 
@@ -29,11 +29,11 @@ public interface TodoItemMapper {
         return status != null ? TodoResponse.StatusEnum.fromValue(status.name()) : null;
     }
 
-    default LocalDateTime mapInstantToLocalDateTime(Instant instant) {
-        return instant != null ? LocalDateTime.ofInstant(instant, ZoneOffset.UTC) : null;
+    default OffsetDateTime mapInstantToOffsetDateTime(Instant instant) {
+        return instant != null ? instant.atOffset(ZoneOffset.UTC) : null;
     }
 
-    default Instant mapLocalDateTimeToInstant(LocalDateTime localDateTime) {
-        return localDateTime != null ? localDateTime.toInstant(ZoneOffset.UTC) : null;
+    default Instant mapOffsetDateTimeToInstant(OffsetDateTime offsetDateTime) {
+        return offsetDateTime != null ? offsetDateTime.toInstant() : null;
     }
 }
